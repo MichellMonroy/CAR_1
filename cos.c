@@ -19,22 +19,37 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+// #include <math.h>
+#include "library.h"
+#include <mpi.h>
 
-float f(float x){
-    float y;
-    y = cos(x);
-    return y;
-}
+// float f(float x){
+//     float y;
+//     y = cos(x);
+//     return y;
+// }
 
 int main(int nargs, char **argv){
+    int miproc;
+    int numproc;
+
     float a = 0.0;
     float b = 0.0;
     float dx = 0.1;
     float x = 0.0;
     int n = 0;
+    float dN = 0;
+    float a0;
+    float b0;
+
+    MPI_Init (&nargs, &argv); //Inicializa MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &miproc); //determina el rango
+    MPI_Comm_size(MPI_COMM_WORLD, &numproc); //determina el número de procesos
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (miproc == 0){
+        printf("I'm 0 process \n");
+    }
     // int i = 0;
-    // for(int i = 0; i<nargs; i++){
     //     printf("%s\n", argv[i]);
     // }
     if (nargs != 4){
@@ -44,14 +59,19 @@ int main(int nargs, char **argv){
     sscanf(argv[1], "%f", &a);
     sscanf(argv[2], "%f", &b);
     sscanf(argv[3], "%f", &dx);
-    x = a;
-    n = (b-a)/dx;
+    dN = (b-a)/numproc;
+    a0 = (a+miproc)*dN;
+    b0 = (a+(miproc + 1))*dN;
+    x = a0;
+    n = (b0-a0)/dx;
     printf("n=%i\n", n);
     for(int i = 1; i<=n; i++){
         printf("%f\t%f\n", x,f(x));
+
         // x = x + dx;
-        x = a + (i*dx);
+        x = a0 + (i*dx);
     }
+    MPI_Finalize();
     return 0;
 }
 
