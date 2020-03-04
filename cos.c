@@ -21,6 +21,7 @@
 #include <stdlib.h>
 // #include <math.h>
 #include "library.h"
+#include "Timming.h"
 #include <mpi.h>
 
 // float f(float x){
@@ -41,14 +42,15 @@ int main(int nargs, char **argv){
     float dN = 0;
     float a0;
     float b0;
+    float y;
+    double utime0, stime0, wtime0,
+           utime1, stime1, wtime1,
+           utime2, stime2, wtime2;
 
     MPI_Init (&nargs, &argv); //Inicializa MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &miproc); //determina el rango
     MPI_Comm_size(MPI_COMM_WORLD, &numproc); //determina el número de procesos
     MPI_Barrier(MPI_COMM_WORLD);
-    if (miproc == 0){
-        printf("I'm 0 process \n");
-    }
     // int i = 0;
     //     printf("%s\n", argv[i]);
     // }
@@ -66,11 +68,31 @@ int main(int nargs, char **argv){
     n = (b0-a0)/dx;
     printf("n=%i\n", n);
     for(int i = 1; i<=n; i++){
-        printf("%f\t%f\n", x,f(x));
-
+        // printf("%f\t%f\n", x,f(x));
+        y = f(x);
         // x = x + dx;
         x = a0 + (i*dx);
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    if (miproc == 0){
+        // printf("I'm 0 process \n");
+        uswtime(&utime1, &stime1, &wtime1); //toma el tiempo
+        
+        printf("\nBenchmarks (sec): \n");
+        printf("real %.3f\n", wtime1-wtime0);
+        printf("user %.3f\n", utime1-utime0);
+        printf("sys %.3f\n", stime1-stime0);
+        printf("\n");
+        printf("CPU/Wall %.3f %% \n", 
+        100.0 * (utime1-utime0 + stime1 - stime0)/(wtime1-wtime0));
+        printf("\n");
+
+    }
+
+
+
     MPI_Finalize();
     return 0;
 }
