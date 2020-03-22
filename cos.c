@@ -49,6 +49,11 @@ int main(int nargs, char **argv){
     MPI_Comm_rank(MPI_COMM_WORLD, &miproc); //determina el rango
     MPI_Comm_size(MPI_COMM_WORLD, &numproc); //determina el número de procesos
     MPI_Barrier(MPI_COMM_WORLD);
+
+    if (miproc == 0){
+        // printf("I'm 0 process \n");
+        uswtime(&utime0, &stime0, &wtime0); //toma el tiempo
+    }
     // int i = 0;
     //     printf("%s\n", argv[i]);
     // }
@@ -65,6 +70,7 @@ int main(int nargs, char **argv){
     x = a0;
     n = (b0-a0)/dx;
     printf("n=%i\n", n);
+    printf("Range_%i %f %f\n",miproc,a0,b0);
     for(int i = 1; i<=n; i++){
         // printf("%f\t%f\n", x,f(x));
         y = f(x);
@@ -76,8 +82,7 @@ int main(int nargs, char **argv){
 
     if (miproc == 0){
         // printf("I'm 0 process \n");
-        uswtime(&utime1, &stime1, &wtime1); //toma el tiempo
-        
+        uswtime(&utime1, &stime1, &wtime1); //toma el tiempo  
         printf("\nBenchmarks (sec): \n");
         printf("real %.3f\n", wtime1-wtime0);
         printf("user %.3f\n", utime1-utime0);
